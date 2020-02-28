@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
     const data = req.body;
 
     try {
-        const link = createLink(data);
+        const link = await createLink(data);
         res.send(link);
     } catch (e) {
         res.status(400).send(e);
