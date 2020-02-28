@@ -5,25 +5,33 @@ const express = require('express'),
 
     Link = require('../models/Link');
 
-router.post('/', async (req, res) => {
-    const data = req.body;
-    data.shortUrl = nanoid(5);
 
-    try {
-        const item = await Link.find({
-            originalUrl: data.originalUrl
-        });
+const createLink = async data => {
+    data.shortUrl = nanoid(6);
+
+    const searchLink = await Link.find({
+        shortUrl: data.shortUrl
+    });
+
+    if (searchLink[0]) {
+        await createLink(data)
+    } else {
         const link = new Link(data);
-
-        if (item[0]) return res.send(item[0]);
-
         await link.save();
 
+        return link;
+    }
+};
+
+router.post('/', async (req, res) => {
+    const data = req.body;
+
+    try {
+        const link = createLink(data);
         res.send(link);
     } catch (e) {
-        res.send(e);
+        res.status(400).send(e);
     }
-
 
 });
 
